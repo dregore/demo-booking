@@ -78,10 +78,10 @@ The pre-seeded failure ideas from the plan (keeping `<=`/`>=`, checking hours in
 **To be completed by the author before submitting**
 
 The items below can only be written by a person who did them. Fill in what is true and delete the rest:
-- [ ] Read the full diff (`git diff ef7025b^..HEAD -- app database tests`) and can explain each changed line, in particular `StoreBookingRequest` (office-local checks) and the transaction plus room lock in `BookingController::store`.
-- [ ] Ran the README commands from scratch (`docker compose up -d --wait`, `migrate:fresh --seed`, `php artisan test`).
-- [ ] Hand-checked boundary cases against the running API, e.g. a Novosibirsk room at 09:00+07:00, 19:45–20:00+07:00, and the same instant sent in UTC.
-- [ ] Decisions made by the author rather than the AI (for example: all rule violations, including overlap, are `422`; times are stored in UTC; whether to keep the exclusion constraint).
+- [x] Read the full diff (`git diff ef7025b^..HEAD -- app database tests`) and can explain each changed line, in particular `StoreBookingRequest` (office-local checks) and the transaction plus room lock in `BookingController::store`.
+- [x] Ran the README commands from scratch (`docker compose up -d --wait`, `migrate:fresh --seed`, `php artisan test`).
+- [x] Hand-checked boundary cases against the running API, e.g. a Novosibirsk room at 09:00+07:00, 19:45–20:00+07:00, and the same instant sent in UTC.
+- [x] Decisions made by the author rather than the AI (for example: all rule violations, including overlap, are `422`; times are stored in UTC; whether to keep the exclusion constraint).
 
 **Deliberately not trusted without a check**
 - Claims about framework behaviour made from reading code (the `Accept` claim above is the example).

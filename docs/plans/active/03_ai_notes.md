@@ -8,13 +8,13 @@ Written last, after phases 1–2, from what actually happened. Do not fabricate 
 3. What was verified manually and what was deliberately not delegated to the AI.
 
 ## Steps
-- [ ] While working, keep a running list of tools (e.g. Claude Code, Laravel Boost) and save candidate prompts and AI mistakes as they occur.
-- [ ] Pick 2–3 key prompts and copy them verbatim (e.g. the planning prompt and one implementation/review prompt).
-- [ ] Describe one real AI error or suboptimal suggestion: what it proposed, which test/line/manual check exposed it, how it was fixed.
-- [ ] List manual verification: curl examples against the Docker stack, timezone boundary cases by hand, reading every diff, parallel-request race check.
-- [ ] List what was not delegated: interpretation of the rules, severity ranking, race-handling strategy, final sign-off on code.
-- [ ] Optionally attach an exported chat history.
-- [ ] Keep it short; write in English.
+- [x] While working, keep a running list of tools (e.g. Claude Code, Laravel Boost) and save candidate prompts and AI mistakes as they occur.
+- [x] Pick 2–3 key prompts and copy them verbatim (e.g. the planning prompt and one implementation/review prompt).
+- [x] Describe one real AI error or suboptimal suggestion: what it proposed, which test/line/manual check exposed it, how it was fixed.
+- [x] List manual verification: curl examples against the Docker stack, timezone boundary cases by hand, reading every diff, parallel-request race check.
+- [x] List what was not delegated: interpretation of the rules, severity ranking, race-handling strategy, final sign-off on code.
+- [x] Optionally attach an exported chat history.
+- [x] Keep it short; write in English.
 
 ## Mistakes to watch for (candidates, not facts)
 - Keeping `<=` / `>=` in the overlap check.

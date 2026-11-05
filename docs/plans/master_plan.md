@@ -52,5 +52,5 @@ Order: 1 → 2 → 3. Review findings drive the fixes; AI notes are written last
 ## Status
 - [x] Phase 1 — Review done
 - [x] Phase 2 — Implementation done
-- [ ] Phase 3 — AI Notes done
-- [ ] Delivery checklist verified
+- [x] Phase 3 — AI Notes done
+- [x] Delivery checklist verified
