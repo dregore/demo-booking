@@ -109,7 +109,20 @@ curl -X POST http://localhost:8000/api/bookings \
   -H "Authorization: Bearer anna-token" \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -d '{"room_id": 1, "user_id": 1, "title": "Планёрка", "starts_at": "2026-11-02T10:00:00+03:00", "ends_at": "2026-11-02T11:00:00+03:00"}'
+  -d '{"room_id": 1, "title": "Планёрка", "starts_at": "2026-11-02T10:00:00+03:00", "ends_at": "2026-11-02T11:00:00+03:00"}'
 ```
 
 Лог созданных броней пишется в `storage/logs/bookings.log`.
+
+## Booking rules and error format
+
+`POST /api/bookings` returns `201` with the created booking. Every rule violation is a `422` in the standard Laravel shape (`message` + `errors` keyed by field): invalid or missing fields, a time not on a 15 minute step, a duration outside 15 minutes - 4 hours, a booking outside 09:00-20:00 in the room's office timezone, and an overlap with another booking of the same room (back-to-back bookings are allowed). The author is always the authenticated user; a `user_id` in the payload is ignored. `DELETE /api/bookings/{id}` returns `403` for anyone but the author and `404` for an unknown booking.
+
+## Concurrent requests for the same slot
+
+Check-then-insert is not atomic, so two simultaneous requests could both pass the overlap check. Two layers prevent a double booking:
+
+1. `store` runs the overlap check and the insert in one transaction and first takes a row lock on the room (`SELECT ... FOR UPDATE`). Concurrent requests for the same room are serialized, and the loser gets the normal `422`.
+2. A migration adds a PostgreSQL exclusion constraint (`EXCLUDE USING gist (room_id WITH =, tsrange(starts_at, ends_at, '[)') WITH &&)`, needs the `btree_gist` extension) and `CHECK (ends_at > starts_at)`. Even if application code is bypassed or changed, the database refuses overlapping rows. The half-open range keeps back-to-back bookings valid.
+
+The constraint is covered by `BookingDatabaseConstraintsTest`. The row lock itself is not covered by an automated test: a burst of 60 parallel requests against `php artisan serve` produced a single booking both with and without the lock, so that environment never opened the race window and the lock is justified by reasoning, not by a reproduced failure.
