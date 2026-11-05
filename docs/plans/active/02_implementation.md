@@ -20,22 +20,22 @@
 - Leave `index` and `today` untouched.
 
 ## Steps (TDD; commit after each group)
-- [ ] `make:test --phpunit BookingStoreTest` and `BookingDestroyTest`.
-- [ ] Tests — happy path: Moscow room and Novosibirsk room → 201.
-- [ ] Tests — overlap: partial, contained, containing, identical → 422; other room same time → 201.
-- [ ] Tests — back-to-back on both sides → 201.
-- [ ] Tests — duration: 14 / 15 / 240 / 241 min; non-15 step (10:07) → 422; end ≤ start → 422.
-- [ ] Tests — working hours per office: 09:00 ok, 08:45 no, end 20:00 ok, end 20:15 no; client sending `Z` / other offsets; the same instant valid for one office and invalid for the other; crossing midnight.
-- [ ] Tests — validation: missing/invalid fields, unknown room → 422; `user_id` in payload ignored.
-- [ ] Tests — destroy: author 204, other user 403, missing 404, unauthenticated 401; past booking can be cancelled.
-- [ ] Run tests, confirm they fail for the right reasons.
-- [ ] `make:request StoreBookingRequest`; implement validation + office-local checks (helper class only if the request gets unwieldy).
-- [ ] Rewrite `store`: transaction, room lock, bound-parameter overlap check, `user_id` from auth, 201.
-- [ ] Rewrite `destroy`: author check.
-- [ ] Optional migration: index `(room_id, starts_at)`, CHECK `ends_at > starts_at`, exclusion constraint if `btree_gist` is available.
-- [ ] Verify the race manually (two parallel requests) or document why not.
-- [ ] README: race-condition section; re-check run/test commands.
-- [ ] `vendor/bin/pint --dirty --format agent`; `php artisan test --compact`.
+- [x] `make:test --phpunit BookingStoreTest` and `BookingDestroyTest`.
+- [x] Tests — happy path: Moscow room and Novosibirsk room → 201.
+- [x] Tests — overlap: partial, contained, containing, identical → 422; other room same time → 201.
+- [x] Tests — back-to-back on both sides → 201.
+- [x] Tests — duration: 14 / 15 / 240 / 241 min; non-15 step (10:07) → 422; end ≤ start → 422.
+- [x] Tests — working hours per office: 09:00 ok, 08:45 no, end 20:00 ok, end 20:15 no; client sending `Z` / other offsets; the same instant valid for one office and invalid for the other; crossing midnight.
+- [x] Tests — validation: missing/invalid fields, unknown room → 422; `user_id` in payload ignored.
+- [x] Tests — destroy: author 204, other user 403, missing 404, unauthenticated 401; past booking can be cancelled.
+- [x] Run tests, confirm they fail for the right reasons.
+- [x] `make:request StoreBookingRequest`; implement validation + office-local checks (helper class only if the request gets unwieldy).
+- [x] Rewrite `store`: transaction, room lock, bound-parameter overlap check, `user_id` from auth, 201.
+- [x] Rewrite `destroy`: author check.
+- [x] Optional migration: index `(room_id, starts_at)`, CHECK `ends_at > starts_at`, exclusion constraint if `btree_gist` is available.
+- [x] Verify the race manually (two parallel requests) or document why not. (Not reproducible locally with or without the lock; documented in README.)
+- [x] README: race-condition section; re-check run/test commands.
+- [x] `vendor/bin/pint --dirty --format agent`; `php artisan test --compact`.
 
 ## Open questions / to verify
 - Status code for overlap: 422 (README "validation 422") vs 409 (current). Default: 422 for all rule violations, documented in README.
