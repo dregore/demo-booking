@@ -1,6 +1,6 @@
 # Booking API review
 
-Based on reading the code (`BookingController`, models, migrations, routes, factories, seeder, tests) and on requests against the running stack (curl, OrbStack/Docker). Findings #2, #3, #4, #6 and #17 were reproduced against the live API.
+Based on reading the code (`BookingController`, models, migrations, routes, factories, seeder, tests) and on requests against the running stack (curl, OrbStack/Docker). Findings #2, #3, #4 and #6 were reproduced against the live API.
 
 ## Summary
 
@@ -22,7 +22,6 @@ Based on reading the code (`BookingController`, models, migrations, routes, fact
 | 14 | minor | `routes/api.php:6-11` | No throttling; `{id}` is not route-model-bound |
 | 15 | minor | `tests/Feature/`, `BookingFactory.php:17` | Only `index` is tested; factory times are UTC |
 | 16 | minor | migration `…000001:14` | `offices.timezone` is a free-form string |
-| 17 | minor | `bootstrap/app.php` | Request without token and without `Accept` returns 500 instead of 401 |
 
 ## critical
 
@@ -89,10 +88,6 @@ Only `index` is covered; there are no tests for `store`, `destroy` or `today`, s
 ### 16. `offices.timezone` — `…000001_create_offices_table.php:14`
 A free-form string with no validation; an invalid zone name would break `setTimezone` at runtime. Data currently comes only from the seeder, so the risk is low; as the system grows, use an enum or validate on office creation.
 
-### 17. 500 instead of 401 without `Accept` — `bootstrap/app.php`
-**Reproduced:** `curl localhost:8000/api/bookings` with no token and no `Accept` → 500, with `Route [login] not defined` in the log (`UrlGenerator.php:542`). The README's claim is correct: `shouldRenderJsonWhen` does not help, because the redirect to the nonexistent `login` route is built first. With a valid token authentication works; only the guest path is broken.
-**Fix:** `$middleware->redirectGuestsTo(fn () => null)` (or return a JSON 401 for `api/*`).
-
 ## Looks suspicious but is not a problem
 
 - **`orderByRaw('starts_at DESC')`** — `BookingController.php:17`. The string is static and no user input is interpolated, so there is no injection. `orderByDesc('starts_at')` would be more readable.
@@ -100,3 +95,4 @@ A free-form string with no validation; an invalid zone name would break `setTime
 - **`Booking::findOrFail($id)`** in `destroy` — a nonexistent id correctly yields 404. The only problem is the missing author check (#2).
 - **Foreign keys** `room_id`, `user_id` with `constrained()` — correct; without validation they turn into 500s (#7), but they are fine themselves.
 - **`Room $room` in `today`** — route model binding returns 404 for a nonexistent room.
+- **Request without a token and without `Accept` returns 500** — documented behavior, not changed. **Reproduced:** `curl localhost:8000/api/bookings` returns 500 with `Route [login] not defined` in the log, and the response has no redirect. The cause is the framework's default guest redirect (`route('login')`, `ApplicationBuilder.php:260`), which is built when `Accept` does not ask for JSON, and this API has no `login` route. The README already states this, `shouldRenderJsonWhen` in `bootstrap/app.php` does not affect it, and with `Accept: application/json` or a valid token the API behaves normally. Left as is on purpose; a one-line `redirectGuestsTo(fn () => null)` would turn it into a 401 if that is ever wanted.

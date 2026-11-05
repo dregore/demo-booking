@@ -55,13 +55,13 @@ Constraints:
 
 The agent made several mistakes during the session. They are listed by how much they could have cost.
 
-**Main case: a wrong claim about the README, written without testing it.** While reviewing, the agent saw `shouldRenderJsonWhen(...)` in `bootstrap/app.php` and concluded that the README's statement "a request without `Accept` and without a token returns 500 instead of 401" was probably stale. It put that into `REVIEW.md` as a "looks suspicious but fine" item. This was an inference from reading code, and it was wrong. Once the stack was running, a plain `curl localhost:8000/api/bookings` returned 500 with `Route [login] not defined` in the log: the redirect to the missing `login` route is built before the JSON renderer is consulted. The review was corrected and the issue became finding #17 with a fix.
+**Main case: a wrong claim about the README, written without testing it.** While reviewing, the agent saw `shouldRenderJsonWhen(...)` in `bootstrap/app.php` and concluded that the README's statement "a request without `Accept` and without a token returns 500 instead of 401" was probably stale. It put that into `REVIEW.md` as a "looks suspicious but fine" item. This was an inference from reading code, and it was wrong. Once the stack was running, a plain `curl localhost:8000/api/bookings` returned 500 with `Route [login] not defined` in the log: the redirect to the missing `login` route is built before the JSON renderer is consulted. The review was corrected: the README's claim is true, and the behavior is recorded in `REVIEW.md` as known behavior that was left unchanged on purpose.
 
 How it was caught: by running the request against the live API instead of trusting the code reading.
 
 **Related mistake: claiming it could not run Docker.** After finishing phase 1, the agent said it could not start Docker and asked the user to do it. It had not tried. The Docker socket was missing only because OrbStack was not running; `orbctl start` fixed it. Caught by the user's question in Prompt 2.
 
-**A review entry that overclaimed.** After the live check, the agent shortened the `auth:sanctum` entry to "authentication is configured correctly", which contradicts finding #17 and is not a suspicious spot anyway. Caught by the user's question in Prompt 3; the line was removed and its one valid point folded into #17.
+**A review entry that overclaimed.** After the live check, the agent shortened the `auth:sanctum` entry to "authentication is configured correctly", which overclaims (the no-token path returns 500) and is not a suspicious spot anyway. Caught by the user's question in Prompt 3; the line was removed and the 500 behavior is described in its own entry.
 
 **A check that looked like proof but proved nothing.** The agent fired 10 parallel curl requests at a double-booking race and got one `201` and nine `422`. That would look like "the lock works", but `php artisan serve` handles one request at a time. A multi-worker server and 60 requests at 30 in parallel still produced exactly one booking when the lock was removed, so the race was never reproduced. The README states this explicitly and relies on the PostgreSQL exclusion constraint (tested directly) as the real guarantee.
 
@@ -70,7 +70,7 @@ The pre-seeded failure ideas from the plan (keeping `<=`/`>=`, checking hours in
 ## 3. What was verified, and what was not delegated
 
 **Verified by running (done in the session by the agent, output seen)**
-- The original API's bugs, reproduced with curl: a user deleting another user's booking (204), a spoofed `user_id`, a back-to-back booking rejected (409), a `+03:00` time stored without conversion (`10:00` instead of `07:00` UTC), the 500 without `Accept`.
+- The original API's bugs, reproduced with curl: a user deleting another user's booking (204), a spoofed `user_id`, a back-to-back booking rejected (409), a `+03:00` time stored without conversion (`10:00` instead of `07:00` UTC), the 500 without a token and without `Accept` (documented in the README, left unchanged).
 - The new tests were run red before implementing (45 failed, 5 passed), then green after (52, then 55 with the database-constraint tests). The full suite passes.
 - The mutation check for the overlap operators described above.
 - The race attempts described above, including that they were inconclusive.
