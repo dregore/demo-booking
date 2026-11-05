@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
 use App\Models\Room;
-use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
@@ -18,33 +21,48 @@ class BookingController extends Controller
             ->paginate(20);
     }
 
-    public function store(Request $request)
+    public function store(StoreBookingRequest $request): JsonResponse
     {
-        $conflict = DB::select("SELECT id FROM bookings
-            WHERE room_id = {$request->room_id}
-            AND starts_at <= '{$request->ends_at}'
-            AND ends_at >= '{$request->starts_at}'");
+        $room = $request->room();
+        $startsAt = $request->startsAtUtc();
+        $endsAt = $request->endsAtUtc();
 
-        if ($conflict) {
-            return response()->json(['error' => 'Комната занята'], 409);
-        }
+        $booking = DB::transaction(function () use ($request, $room, $startsAt, $endsAt): Booking {
+            // Serialize concurrent bookings of the same room so the overlap check and the insert are atomic.
+            Room::whereKey($room->id)->lockForUpdate()->first();
 
-        $start = Carbon::parse($request->starts_at);
-        if ($start->hour < 9 || $start->hour >= 20) {
-            return response()->json(['error' => 'Нерабочее время'], 422);
-        }
+            $isRoomBusy = Booking::where('room_id', $room->id)
+                ->where('starts_at', '<', $endsAt)
+                ->where('ends_at', '>', $startsAt)
+                ->exists();
 
-        $booking = Booking::create($request->all());
+            if ($isRoomBusy) {
+                throw ValidationException::withMessages([
+                    'starts_at' => 'The room is already booked for this time.',
+                ]);
+            }
 
-        Log::withContext(['booking_id' => $booking->id]);
-        Log::channel('bookings')->info('Booking created');
+            return Booking::create([
+                'room_id' => $room->id,
+                'user_id' => $request->user()->id,
+                'title' => $request->string('title')->toString(),
+                'starts_at' => $startsAt,
+                'ends_at' => $endsAt,
+            ]);
+        });
 
-        return $booking;
+        Log::channel('bookings')->info('Booking created', ['booking_id' => $booking->id]);
+
+        return response()->json($booking, 201);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, int $id): Response
     {
-        Booking::findOrFail($id)->delete();
+        $booking = Booking::findOrFail($id);
+
+        abort_unless($booking->user_id === $request->user()->id, 403, 'Only the author can cancel a booking.');
+
+        $booking->delete();
 
         return response()->noContent();
     }
@@ -55,7 +73,7 @@ class BookingController extends Controller
             ->whereDate('starts_at', today())
             ->get()
             ->map(fn ($b) => [
-                'time' => $b->starts_at . ' – ' . $b->ends_at,
+                'time' => $b->starts_at.' – '.$b->ends_at,
                 'author' => $b->user->name,
             ]);
     }
