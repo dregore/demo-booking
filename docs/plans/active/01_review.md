@@ -6,19 +6,19 @@ Output: `REVIEW.md`, one entry per finding with severity (critical / major / min
 `BookingController` (`store`, `destroy`, `index`, `today`), `app/Models/*`, `database/migrations/*`, `routes/api.php`, `tests/Feature/*`; also factory, seeder, `bootstrap/app.php`, `config/logging.php`.
 
 ## Steps
-- [ ] Re-read each target with line numbers; note every suspicious spot.
-- [ ] `store`: check SQL building (L23-26), overlap operators, validation order, timezone handling (L32-35), mass assignment (L37), status codes, logging (L39-40), race.
-- [ ] `destroy`: check authorization (L47) and 404 behaviour.
-- [ ] `index`: check `orderByRaw`, scoping to the authenticated user, pagination output.
-- [ ] `today`: check `whereDate(..., today())` timezone, N+1 on `user`, ordering, string formatting of datetimes.
-- [ ] Models: `#[Fillable]` (incl. `user_id`), casts, relations.
-- [ ] Migrations: column types (`timestamp`), indexes, CHECK/exclusion constraints, `offices.timezone` as free string.
-- [ ] Routes: `{id}` not model-bound, no throttle, auth group.
-- [ ] Tests: what `BookingIndexTest` covers; gaps; factory default times.
-- [ ] Verify uncertain items (see open questions) by reading framework code or running a test; do not assume.
-- [ ] Rank candidates (starting point below), write `REVIEW.md`.
-- [ ] Add "Suspicious but fine" section.
-- [ ] Self-check against Definition of Done.
+- [x] Re-read each target with line numbers; note every suspicious spot.
+- [x] `store`: check SQL building (L23-26), overlap operators, validation order, timezone handling (L32-35), mass assignment (L37), status codes, logging (L39-40), race.
+- [x] `destroy`: check authorization (L47) and 404 behaviour.
+- [x] `index`: check `orderByRaw`, scoping to the authenticated user, pagination output.
+- [x] `today`: check `whereDate(..., today())` timezone, N+1 on `user`, ordering, string formatting of datetimes.
+- [x] Models: `#[Fillable]` (incl. `user_id`), casts, relations.
+- [x] Migrations: column types (`timestamp`), indexes, CHECK/exclusion constraints, `offices.timezone` as free string.
+- [x] Routes: `{id}` not model-bound, no throttle, auth group.
+- [x] Tests: what `BookingIndexTest` covers; gaps; factory default times.
+- [x] Verify uncertain items (see open questions) by reading framework code or running a test; do not assume.
+- [x] Rank candidates (starting point below), write `REVIEW.md`.
+- [x] Add "Suspicious but fine" section.
+- [x] Self-check against Definition of Done.
 
 ## Candidate findings (to confirm)
 **Critical**

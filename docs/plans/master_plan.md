@@ -50,7 +50,7 @@ Order: 1 → 2 → 3. Review findings drive the fixes; AI notes are written last
 - Do not fix `index`/`today` — review only.
 
 ## Status
-- [ ] Phase 1 — Review done
+- [x] Phase 1 — Review done
 - [ ] Phase 2 — Implementation done
 - [ ] Phase 3 — AI Notes done
 - [ ] Delivery checklist verified
