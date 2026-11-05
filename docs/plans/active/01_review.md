@@ -52,7 +52,7 @@ Output: `REVIEW.md`, one entry per finding with severity (critical / major / min
 - How `timestamp` (without tz) columns behave if the app timezone is not UTC (`config/app.php:68`).
 - Does `today` output datetimes in UTC strings?
 - Is `btree_gist` available in the Docker PostgreSQL (affects the suggested constraint fix)?
-- Language of `REVIEW.md` (README is Russian — default to Russian).
+- Language of `REVIEW.md` (decided: English).
 
 ## Definition of Done
 - Every finding has severity, `file:line`, description, fix.

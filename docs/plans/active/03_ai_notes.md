@@ -14,7 +14,7 @@ Written last, after phases 1–2, from what actually happened. Do not fabricate 
 - [ ] List manual verification: curl examples against the Docker stack, timezone boundary cases by hand, reading every diff, parallel-request race check.
 - [ ] List what was not delegated: interpretation of the rules, severity ranking, race-handling strategy, final sign-off on code.
 - [ ] Optionally attach an exported chat history.
-- [ ] Keep it short; write in Russian like the README.
+- [ ] Keep it short; write in English.
 
 ## Mistakes to watch for (candidates, not facts)
 - Keeping `<=` / `>=` in the overlap check.
@@ -27,7 +27,7 @@ Written last, after phases 1–2, from what actually happened. Do not fabricate 
 ## Open questions / to verify
 - Which tools were actually used (fill from reality only)?
 - Did a genuine AI mistake occur? If not, use the "double-checked suggestion" variant allowed by the README.
-- Language: Russian by default.
+- Language: English.
 
 ## Definition of Done
 - All three README questions are answered.

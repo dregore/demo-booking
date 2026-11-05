@@ -38,7 +38,7 @@ Order: 1 → 2 → 3. Review findings drive the fixes; AI notes are written last
 
 ## Delivery requirements
 - **README:** run and test commands already exist (`docker compose up -d --wait`, `docker compose exec app php artisan migrate:fresh --seed`, `docker compose exec app php artisan test`). Re-verify they work after the changes; add the race-condition note.
-- **Commit history:** small, meaningful commits following the existing style (Russian messages). Suggested split: review → tests for a rule + fix → ... → race handling → README → AI notes. Each commit should leave tests green.
+- **Commit history:** small, meaningful commits in English. Suggested split: review → tests for a rule + fix → ... → race handling → README → AI notes. Each commit should leave tests green.
 - **Race-condition note:** state the problem (check-then-insert, two concurrent requests for one slot), the chosen fix (row lock on the room inside a transaction, optionally a PostgreSQL exclusion constraint), and how it was verified — or, if not implemented, how it would be done.
 - **Access:** if the repo is private, add `rcsi-science` as collaborator (or send an archive including `.git`).
 - Every line must be explainable at the follow-up call.
